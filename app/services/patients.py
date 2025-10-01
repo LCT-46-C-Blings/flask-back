@@ -8,25 +8,25 @@ from app.models import Patient, PatientAnamnesis
 
 patients_bp    = Blueprint("patients", __name__)
 
-def create_patient(patient_id: Optional[str] = None) -> Patient:
-    p = Patient(patient_id=patient_id)
+def create_patient() -> Patient:
+    p = Patient()
 
     db.session.add(p)
     try:
         db.session.commit()
     except IntegrityError as e:
         db.session.rollback()
-        raise ValueError(f"patient '{patient_id}' already exists") from e
+        raise ValueError("failed to create patient") from e
     return p
 
-def get_patient(patient_id: str) -> Optional[Patient]:
+def get_patient(patient_id: int) -> Optional[Patient]:
     return db.session.get(Patient, patient_id)
 
 def list_patients(offset: int = 0, limit: int = None) -> List[Patient]:
     stmt = select(Patient).order_by(Patient.patient_id).offset(offset).limit(limit)
     return db.session.scalars(stmt).all()
 
-def delete_patient(patient_id: str) -> bool:
+def delete_patient(patient_id: int) -> bool:
     obj = db.session.get(Patient, patient_id)
     if not obj:
         return False
@@ -39,7 +39,7 @@ def delete_all_patients() -> int:
     db.session.commit()
     return int(res.rowcount or 0)
 
-def get_anamnesis(patient_id: str) -> list[str]:
+def get_anamnesis(patient_id: int) -> list[str]:
     if not db.session.get(Patient, patient_id):
         return []
     stmt = (select(PatientAnamnesis)
@@ -47,7 +47,7 @@ def get_anamnesis(patient_id: str) -> list[str]:
             .order_by(PatientAnamnesis.anamnesis_id))
     return [r.text for r in db.session.scalars(stmt).all()]
 
-def set_anamnesis(patient_id: str, lines: list[str]) -> None:
+def set_anamnesis(patient_id: int, lines: list[str]) -> None:
     if not db.session.get(Patient, patient_id):
         raise ValueError("patient not found")
     db.session.execute(
@@ -56,7 +56,7 @@ def set_anamnesis(patient_id: str, lines: list[str]) -> None:
     db.session.add_all([PatientAnamnesis(patient_id=patient_id, text=t) for t in lines])
     db.session.commit()
 
-def append_anamnesis_line(patient_id: str, text: str) -> None:
+def append_anamnesis_line(patient_id: int, text: str) -> None:
     if not db.session.get(Patient, patient_id):
         raise ValueError("patient not found")
     db.session.add(PatientAnamnesis(patient_id=patient_id, text=text))

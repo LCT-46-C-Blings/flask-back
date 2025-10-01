@@ -10,11 +10,11 @@ from app.services.id import new_id
 prediction_visit = db.Table(
     "prediction_visit",
     db.Column("prediction_id", 
-              db.String, 
+              db.Integer, 
               db.ForeignKey("prediction.prediction_id", ondelete="CASCADE"), 
               primary_key=True),
     db.Column("visit_id",      
-              db.String, 
+              db.Integer, 
               db.ForeignKey("visit.visit_id", ondelete="CASCADE"), 
               primary_key=True),
 )
@@ -22,9 +22,9 @@ prediction_visit = db.Table(
 class PatientAnamnesis(db.Model):
     __tablename__ = "patient_anamnesis"
 
-    anamnesis_id: so.Mapped[int] = so.mapped_column(db.String, primary_key=True, default=new_id)
-    patient_id: so.Mapped[str] = so.mapped_column(
-        db.String,
+    anamnesis_id: so.Mapped[int] = so.mapped_column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    patient_id: so.Mapped[int] = so.mapped_column(
+        db.Integer,
         db.ForeignKey("patient.patient_id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -37,7 +37,7 @@ class PatientAnamnesis(db.Model):
 class Patient(db.Model):
     __tablename__ = "patient"
 
-    patient_id: so.Mapped[str] = so.mapped_column(db.String, primary_key=True, default=new_id)
+    patient_id: so.Mapped[int] = so.mapped_column(db.Integer, primary_key=True, autoincrement=True, unique=True)
 
     visits: so.Mapped[List["Visit"]] = so.relationship(
         "Visit",
@@ -52,10 +52,10 @@ class Patient(db.Model):
 class Visit(db.Model):
     __tablename__ = "visit"
 
-    visit_id: so.Mapped[int] = so.mapped_column(db.String, primary_key=True, default=new_id)
+    visit_id: so.Mapped[int] = so.mapped_column(db.Integer, primary_key=True, autoincrement=True, unique=True)
 
-    patient_id: so.Mapped[str] = so.mapped_column(
-        db.String,
+    patient_id: so.Mapped[int] = so.mapped_column(
+        db.Integer,
         db.ForeignKey("patient.patient_id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -87,13 +87,13 @@ class Visit(db.Model):
 class Record(db.Model):
     __tablename__ = "record"
 
-    record_id:  so.Mapped[str]   = so.mapped_column(db.String, primary_key=True, default=new_id)
+    record_id:  so.Mapped[int]   = so.mapped_column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     timestamp:  so.Mapped[float] = so.mapped_column(db.Float, nullable=False)
     value:      so.Mapped[float] = so.mapped_column(db.Float, nullable=False)
     record_type: so.Mapped[str]  = so.mapped_column(db.String, nullable=False)  # 'FHR'|'UC'
 
     visit_id: so.Mapped[int] = so.mapped_column(
-        db.String,
+        db.Integer,
         db.ForeignKey("visit.visit_id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -110,10 +110,10 @@ class Record(db.Model):
 class Event(db.Model):
     __tablename__ = "event"
 
-    event_id:  so.Mapped[str]   = so.mapped_column(db.String, primary_key=True, default=new_id)
+    event_id:  so.Mapped[int]   = so.mapped_column(db.Integer, primary_key=True, autoincrement=True, unique=True)
 
-    visit_id:  so.Mapped[str]   = so.mapped_column(
-        db.String,
+    visit_id:  so.Mapped[int]   = so.mapped_column(
+        db.Integer,
         db.ForeignKey("visit.visit_id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -131,7 +131,7 @@ class Event(db.Model):
 class Prediction(db.Model):
     __tablename__ = "prediction"
 
-    prediction_id: so.Mapped[str]   = so.mapped_column(db.String, primary_key=True, default=new_id)
+    prediction_id: so.Mapped[int]   = so.mapped_column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     created_at:    so.Mapped[float] = so.mapped_column(db.Float, nullable=False)
     result:        so.Mapped[str]   = so.mapped_column(db.String, nullable=False)
 
