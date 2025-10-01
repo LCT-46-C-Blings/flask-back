@@ -24,7 +24,7 @@ def create_visit():
 
 @visits_bp.get("/list")
 def index():
-    patient_id = request.args.get("patient_id", None)
+    patient_id = request.args.get("patient_id")
 
     try:
         return {"visits": [

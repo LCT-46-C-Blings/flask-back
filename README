@@ -1,0 +1,122 @@
+API:
+    /api/events
+        / GET
+        args
+            visit_id: int
+        ret: {"events": [
+            {
+                "id": int,
+                "type": str,
+                "start": float,
+                "end": float,
+                "value": str
+            }
+        ]}
+
+
+    /api/predictions
+        / GET
+        args
+            visit_id: int
+        ret: {"prediction": 
+            {
+                "id": int,
+                "result": str
+            }
+        }
+
+
+    /api/visits
+        / POST
+        args
+            patient_id: int
+        ret: {
+            "ok": bool,
+            "visit_id": int,
+            "created": bool,
+        }
+
+        /list GET
+        args
+            patient_id: int
+        ret: {"visits": [
+            {
+                "id": int,
+                "start_time": float,
+                "end_time": float
+            }
+        ]}
+
+
+    /api/patients
+        /create POST
+        body
+            anamnesis: List[str]
+        ret: {
+            "ok": bool,
+            "patient_id": int,
+            "created": bool,
+        }
+    
+        /set_anamnesis POST
+        body
+            anamnesis: List[str]
+        ret: {
+            "ok": bool,
+            "patient_id": int,
+            "created": bool,
+        }
+
+        /list GET
+        ret: {"patients": [
+            {
+                "id": int,
+                "anamnesis": List[str],
+                "appointments": [
+                    {
+                        "id": int,
+                        "start_time": float,
+                        "end_time": float
+                    }
+                ]
+            } 
+        ]}
+
+        / GET
+        args
+            patient_id: int
+        ret: {"patient": 
+            {
+                "id": int,
+                "anamnesis": List[str],
+                "appointments": [
+                    {
+                        "id": int,
+                        "start_time": float,
+                        "end_time": float
+                    }
+                ]
+            } 
+        }
+
+
+    /api/records
+        /fhr GET
+        args
+            visit_id: int
+        ret: {"items": [
+            {
+                "timestamp": float,
+                "value": float
+            }
+        ]}
+
+        /uc GET
+        args
+            visit_id: int
+        ret: {"items": [
+            {
+                "timestamp": float,
+                "value": float
+            }
+        ]}

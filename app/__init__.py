@@ -40,10 +40,10 @@ def create_app(config_object=Config):
     from app.api.monitor import monitor_bp
     app.register_blueprint(monitor_bp, url_prefix="/api/monitor")
 
+    from app.api.records import records_bp
+    app.register_blueprint(records_bp, url_prefix="/api/records")
+
     from app.ws.records import register_records_ws
     register_records_ws(socketio)
-
-    from app.ws.events import register_ws
-    register_ws(socketio)
 
     return app

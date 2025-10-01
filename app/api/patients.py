@@ -42,7 +42,7 @@ def set_anamnesis():
 
 
 @patients_bp.get("/list")
-def index():
+def list_patients():
     try:
         patients = svc_patients.list_patients()
         return {"patients": [
@@ -62,6 +62,30 @@ def index():
         ]}
     except ValueError as e:
         return jsonify({"ok": False, "error": str(e)}), 409
+    
+@patients_bp.get("/")
+@patients_bp.get("")
+def get_patient():
+    patient_id = request.args.get("patient_id", None)
+    try:
+        p = svc_patients.get_patient(patient_id=patient_id)
+        return {"patient": 
+            {
+                "id": p.patient_id,
+                "anamnesis": svc_patients.get_anamnesis(p.patient_id),
+                "appointments": [
+                    {
+                        "id": a.visit_id,
+                        "start_time": a.start_time,
+                        "end_time": a.end_time
+                    }
+                    for a in svc_visits.list_visits(p.patient_id)
+                ],
+            } 
+        }
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 409
+
 
 @patients_bp.get("/test")
 def test():
