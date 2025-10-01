@@ -37,6 +37,9 @@ def create_app(config_object=Config):
     from app.api.visits import visits_bp
     app.register_blueprint(visits_bp, url_prefix="/api/visits")
 
+    from app.api.monitor import monitor_bp
+    app.register_blueprint(monitor_bp, url_prefix="/api/monitor")
+
     from app.ws.records import register_records_ws
     register_records_ws(socketio)
 

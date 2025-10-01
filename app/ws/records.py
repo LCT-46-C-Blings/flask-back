@@ -14,7 +14,7 @@ _state = {
 def _push(channel: str, event_name: str, payload: dict):
     sid = _state[channel]["sid"]
     if sid:
-        socketio.emit(event_name, payload, to=sid, namespace=f"/ws/{channel}")
+        socketio.emit(event_name, payload, to=sid, namespace=f"/ws/records/{channel}")
 
 class _BaseNS(Namespace):
     channel = ""   # 'fhr' | 'uc'

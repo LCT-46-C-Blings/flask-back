@@ -1,5 +1,6 @@
 from typing import List
 from flask import Blueprint, jsonify, request
+from app.emulator.emulator import run_emulator, start_emulator
 import app.services.patients as svc_patients
 import app.services.visits as svc_visits
 from app.models import Patient
@@ -18,6 +19,22 @@ def create_patient():
         return jsonify({
             "ok": True,
             "patient_id": p.patient_id,
+            "created": True,
+        }), 201
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 409
+
+@patients_bp.post("set_anamnesis")
+def set_anamnesis():
+    data = request.get_json(silent=True)
+    
+    try:
+        patient_id = request.args.get("patient_id", None)
+        anamnesis = data.get("anamnesis", [])
+        svc_patients.set_anamnesis(patient_id=patient_id, lines=anamnesis)
+        return jsonify({
+            "ok": True,
+            "patient_id": patient_id,
             "created": True,
         }), 201
     except ValueError as e:
@@ -45,3 +62,12 @@ def index():
         ]}
     except ValueError as e:
         return jsonify({"ok": False, "error": str(e)}), 409
+
+@patients_bp.get("/test")
+def test():
+    svc_visits.create_visit(patient_id=1)
+
+    # 3) Безопасный одноразовый прогон (гарантированная остановка)
+    from time import sleep
+    with run_emulator(visit_id=1, loop=False):
+        sleep(10)
