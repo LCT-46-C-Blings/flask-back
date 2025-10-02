@@ -9,7 +9,7 @@ _lock = threading.RLock()
 _proc: Optional[subprocess.Popen] = None
 _watcher: Optional[threading.Thread] = None
 _active_visit_id: Optional[int] = None
-_on_finished: Optional[Callable[[Dict[str, Any]], None]] = None  # задаётся извне
+_on_finished: Optional[Callable[[Dict[str, Any]], None]] = None 
 
 def set_on_finished(cb: Callable[[Dict[str, Any]], None]) -> None:
     global _on_finished
@@ -100,7 +100,6 @@ def start_emulator(
         return _proc.pid
 
 def stop_emulator(graceful: bool = True) -> bool:
-    """Посылаем сигнал процессу. Финализация и очистка — в watcher."""
     with _lock:
         if not _proc or _proc.poll() is not None:
             return False
