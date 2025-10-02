@@ -43,7 +43,11 @@ def create_app(config_object=Config):
     from app.api.records import records_bp
     app.register_blueprint(records_bp, url_prefix="/api/records")
 
+    from app.api.predictions import predictions_bp
+    app.register_blueprint(predictions_bp, url_prefix="/api/predictions") 
+
     from app.ws.records import register_records_ws
     register_records_ws(socketio)
-
+    
+    print(app.url_map)
     return app

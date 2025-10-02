@@ -20,6 +20,18 @@ def create_visit():
         }), 201
     except ValueError as e:
         return jsonify({"ok": False, "error": str(e)}), 409
+    
+@visits_bp.post("/finish")
+def finish_visit():
+    visits_bp = request.args.get("visit_id", None)
+    
+    try:
+        v = svc_visits.finish_visit(visit_id=visits_bp)
+        return jsonify({
+            "ok": True
+        }), 201
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 409
 
 
 @visits_bp.get("/list")

@@ -21,6 +21,7 @@ def create_patient() -> Patient:
 
 def get_patient(patient_id: int) -> Optional[Patient]:
     return db.session.get(Patient, patient_id)
+    
 
 def list_patients(offset: int = 0, limit: int = None) -> List[Patient]:
     stmt = select(Patient).order_by(Patient.patient_id).offset(offset).limit(limit)
