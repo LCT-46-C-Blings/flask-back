@@ -13,7 +13,7 @@ docker build -t flask-backend .
 ```bash
 docker run -p 5050:5050 --env-file .env flask-backend
 ```
-Приложение будет доступно по адресу: `http://127.0.0.1:5000`
+Приложение будет доступно по адресу: `http://127.0.0.1:5050`
 ---
 API:
     /api/events
