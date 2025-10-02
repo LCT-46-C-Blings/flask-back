@@ -87,11 +87,10 @@ def get_patient():
         return jsonify({"ok": False, "error": str(e)}), 409
 
 
-@patients_bp.get("/test")
-def test():
-    svc_visits.create_visit(patient_id=1)
+# @patients_bp.get("/test")
+# def test():
+#     svc_visits.create_visit(patient_id=1)
 
-    # 3) Безопасный одноразовый прогон (гарантированная остановка)
-    from time import sleep
-    with run_emulator(visit_id=1, loop=False):
-        sleep(3)
+#     from time import sleep
+#     with run_emulator(visit_id=1, loop=False):
+#         sleep(3)
