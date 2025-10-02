@@ -24,7 +24,7 @@ def create_patient():
     except ValueError as e:
         return jsonify({"ok": False, "error": str(e)}), 409
 
-@patients_bp.post("set_anamnesis")
+@patients_bp.post("/set_anamnesis")
 def set_anamnesis():
     data = request.get_json(silent=True)
     

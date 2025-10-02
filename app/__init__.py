@@ -7,6 +7,7 @@ import sqlite3
 from flask_migrate import Migrate
 from app.config import Config
 from flask.json.provider import DefaultJSONProvider
+from flask_cors import CORS
 
 class UTF8JSONProvider(DefaultJSONProvider):
     ensure_ascii = False
@@ -30,6 +31,8 @@ def create_app(config_object=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
+    socketio.init_app(app) 
+    enable_sqlite_fk(app)
 
     from app.api.patients import patients_bp
     app.register_blueprint(patients_bp, url_prefix="/api/patients")
@@ -48,6 +51,5 @@ def create_app(config_object=Config):
 
     from app.ws.records import register_records_ws
     register_records_ws(socketio)
-    
-    print(app.url_map)
+    CORS(app)
     return app
