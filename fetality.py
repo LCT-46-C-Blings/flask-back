@@ -1,7 +1,7 @@
 from app import create_app
 
 if __name__ == "__main__":
-    
-    create_app().run(debug=True, port=5050)
+    a = create_app()
+    a.run(host=a.config["FLASK_RUN_HOST"], port=a.config["FLASK_RUN_PORT"], debug=True)
     
     
