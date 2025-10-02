@@ -1,49 +1,50 @@
-# Motet - Medical Data Simulator
-A Go-based application for simulating and sending medical data from CSV files to a remote server. 
+# Motet - Симулятор медицинских данных
+Приложение на Go для симуляции и отправки медицинских данных из CSV-файлов на удаленный сервер.
 
-## Overview
-Motet reads time-series data from CSV files and sends it to a specified HTTP endpoint with precise timing, simulating real-time data streams from medical sensors. It supports multiple data types (e.g., BPM and uterine activity) and can run in loop mode for continuous testing.
+## Обзор
+Motet читает данные временных рядов из CSV-файлов и отправляет их на указанный HTTP-эндпоинт с точным соблюдением временных интервалов, имитируя реальные потоки данных с медицинских датчиков. Он поддерживает несколько типов данных (например, ЧСС и маточную активность) и может работать в режиме цикла для непрерывного тестирования.
 
-## Installation
+## Установка
 
-### Prerequisites
-    Go 1.25 or later
+### Предварительные требования
+    Go 1.25 или новее
 
-### Building
-    # Clone the repository
-    git clone <repository-url>
+### Сборка
+    # Клонировать репозиторий
+    git clone <url-репозитория>
     cd motet
 
-    # Build the application
+    # Собрать приложение
     make build
-    # or directly
+    # или напрямую
     go build -o build/motet .
-The binary will be created in the build/ directory.
+Бинарный файл будет создан в директории build/.
 
-### Usage
-    ./build/motet -bpm <bpm_csv_file> -uterus <uterus_csv_file> -url <target_url> [-loop]
+### Использование
+    ./build/motet -bpm <bpm_csv_файл> -uterus <uterus_csv_файл> -url <целевой_url> [-loop]
 
-### Command Line Options
-- -bpm: Path to CSV file containing heart rate (BPM) data
-- -uterus: Path to CSV file containing uterine activity data
-- -url: Target URL for sending data (default: localhost:8080)
-- -loop: Enable continuous looping of data (default: false)
-- -help: Show help message
-### CSV Format
-CSV files should follow this format:
+### Параметры командной строки
+- -bpm: Путь к CSV-файлу, содержащему данные сердечного ритма (ЧСС)
+- -uterus: Путь к CSV-файлу, содержащему данные маточной активности
+- -url: Целевой URL для отправки данных (по умолчанию: localhost:8080)
+- -loop: Включить непрерывное циклирование данных (по умолчанию: false)
+- -help: Показать справочное сообщение
+
+### Формат CSV
+CSV-файлы должны следовать этому формату:
 
     time,value
     0.0,72.5
     1.5,73.2
     3.0,72.8
     ...
-- Header: First line is required (will be skipped)
-- Time: Floating-point number representing seconds from start
-- Value: Floating-point measurement value
+- Заголовок: Первая строка обязательна (будет пропущена)
+- Время: Число с плавающей запятой, представляющее секунды от начала
+- Значение: Число с плавающей запятой - значение измерения
 
-### API Endpoints
-Data is sent via HTTP POST requests to:
+### API эндпоинты
+Данные отправляются через HTTP POST запросы на:
 
-BPM data: http://\<url>/bpm?value=\<measurement>
+Данные BPM: http://\<url>/bpm?value=\<measurement>
 
-Uterus data: http://\<url>/uterus?value=\<measurement>
+Данные Uterus: http://\<url>/uterus?value=\<measurement>
