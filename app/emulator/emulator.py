@@ -55,7 +55,7 @@ def start_emulator(
         if url is None:
             host = str(Config.FLASK_RUN_HOST).strip()
             port = str(Config.FLASK_RUN_PORT).strip()
-            url = f"http://{host}:{port}/api/monitor"
+            url = f"{host}:{port}/api/monitor"
 
         for fp in (bpm_csv_abs, uterus_csv_abs):
             if not Path(fp).exists():

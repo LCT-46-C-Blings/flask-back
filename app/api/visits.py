@@ -1,3 +1,4 @@
+import time
 from typing import List
 from flask import Blueprint, jsonify, request
 import app.services.patients as svc_patients
@@ -26,7 +27,7 @@ def finish_visit():
     visits_bp = request.args.get("visit_id", None)
     
     try:
-        v = svc_visits.finish_visit(visit_id=visits_bp)
+        v = svc_visits.finish_visit(visit_id=visits_bp, end_time=time.time())
         return jsonify({
             "ok": True
         }), 201
