@@ -1,3 +1,20 @@
+---
+
+## 🐳 Запуск через Docker
+
+Сборка образа:
+
+```bash
+docker build -t flask-backend .
+```
+
+Запуск контейнера:
+
+```bash
+docker run -p 5050:5050 --env-file .env flask-backend
+```
+Приложение будет доступно по адресу: `http://127.0.0.1:5000`
+---
 API:
     /api/events
         / GET
@@ -204,4 +221,4 @@ flask-back/
 │  └─ build/
 │     └─ motet                    # собранный бинарь (go build -o build/motet .)
 └─ instance/
-   └─ db.sqlite3                  # локальная БД по умолчанию (git-игнорится)
+   └─ db.sqlite3                  # локальная БД по умолчанию
