@@ -14,7 +14,7 @@ class UTF8JSONProvider(DefaultJSONProvider):
 
 db = SQLAlchemy()
 migrate = Migrate()
-socketio = SocketIO(async_mode="eventlet", cors_allowed_origins="*")
+socketio = SocketIO(cors_allowed_origins="*")
 
 def enable_sqlite_fk(app):
     @event.listens_for(Engine, "connect")
