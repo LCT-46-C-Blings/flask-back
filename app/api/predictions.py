@@ -13,7 +13,15 @@ def prediction():
     visit_id = request.args.get("visit_id", None)
 
     try:
-        pr = svc_predictions.get_prediction(visit_id=visit_id)
+        pr = svc_predictions.get_prediction_by_visit_id(visit_id=visit_id)
+        if not pr:
+            pr = get_prediction(visit_id=visit_id)
+            return {"prediction": 
+                {
+                    "id": 0,
+                    "result": pr
+                }
+            }
         return {"prediction": 
             {
                 "id": pr.prediction_id,

@@ -5,6 +5,8 @@ from sqlalchemy import select, delete as sa_delete
 from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models import Visit, Patient
+from app.emulator.emulator import stop_emulator
+from app.ws.records import _get_state, _safe_disconnect, _with_state
 
 def create_visit(patient_id: int, start_time: Optional[float] = None, end_time: Optional[float] = None) -> Visit:
     if not db.session.get(Patient, patient_id):
@@ -30,6 +32,19 @@ def finish_visit(visit_id: int, end_time: float) -> bool:
         raise ValueError("end_time must be >= start_time")
     v.end_time = end_time
     db.session.commit()
+    
+    status = _get_state("fhr", "visit_id")
+    if status == visit_id:
+        stop_emulator(graceful=True)
+        _safe_disconnect("/ws/records/fhr", _get_state("fhr", "sid"))
+        _safe_disconnect("/ws/records/uc",  _get_state("uc", "sid"))
+        # обнуляем состояние, чтобы не возобновилось
+        _with_state("fhr", "sid", None)
+        _with_state("uc",  "sid", None)
+        _with_state("fhr", "visit_id", None)
+        _with_state("uc",  "visit_id", None)
+        _with_state("fhr", "snapshot_sent", False)
+        _with_state("uc",  "snapshot_sent", False)
     return True
 
 def get_visit(visit_id: int) -> Optional[Visit]:

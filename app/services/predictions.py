@@ -77,6 +77,9 @@ def create_prediction(visit_ids: List[int], result: str, created_at: Optional[fl
 def get_prediction(prediction_id: int) -> Optional[Prediction]:
     return db.session.get(Prediction, prediction_id)
 
+def get_prediction_by_visit_id(visit_id: int) -> Optional[Prediction]:
+    return db.session.scalars(select(Prediction).join(Prediction.visits).where(Visit.visit_id == visit_id)).first()
+
 def update_prediction_result(prediction_id: int, result: str) -> bool:
     p = db.session.get(Prediction, prediction_id)
     if not p:

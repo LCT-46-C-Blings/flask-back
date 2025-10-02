@@ -41,7 +41,7 @@ def _safe_disconnect(ns: str, sid: Optional[str]):
     if not sid:
         return
     socketio.emit("emulator:finished", {"message": "Эмулятор завершился"}, to=sid, namespace=ns)
-    socketio.server.disconnect(sid, namespace=ns)
+    # socketio.server.disconnect(sid, namespace=ns)
 
 class _BaseNS(Namespace):
     channel = ""
@@ -61,9 +61,20 @@ class _BaseNS(Namespace):
         if not visit_id:
             emit("error", {"ok": False, "message": "visit_id required"})
             return False
-        if not vis_svc.get_visit(visit_id):
+        
+        visit = vis_svc.get_visit(visit_id)
+        if not visit:
             emit("error", {"ok": False, "message": "visit not found"})
             return False
+
+        if visit.end_time:
+            emit("error", {
+                "ok": False,
+                "message": "visit already finished",
+                "visit_id": visit_id,
+            })
+            return False
+
 
         old_visit = _get_state(self.channel, "visit_id")
         _with_state(self.channel, "sid", request.sid)
