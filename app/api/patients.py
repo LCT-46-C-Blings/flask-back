@@ -94,4 +94,4 @@ def test():
     # 3) Безопасный одноразовый прогон (гарантированная остановка)
     from time import sleep
     with run_emulator(visit_id=1, loop=False):
-        sleep(10)
+        sleep(3)

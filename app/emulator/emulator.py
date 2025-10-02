@@ -6,6 +6,7 @@ import threading
 from pathlib import Path
 from typing import Optional, Dict, Any
 from contextlib import contextmanager
+from app.config import Config
 
 _lock = threading.RLock()
 _proc: Optional[subprocess.Popen] = None
@@ -30,7 +31,7 @@ def start_emulator(
     # --- данные и адрес приёмника ---
     bpm_csv: str = "motet/data/bpm_1.csv",
     uterus_csv: str = "motet/data/uterus_1.csv",
-    url: str = "localhost:5000/api/monitor",
+    url: str = Config.FLASK_RUN_HOST + ":" + Config.FLASK_RUN_PORT + "/api/monitor",
     loop: bool = False,
     # --- опциональный fallback на go run (если бинаря нет) ---
     allow_go_run_fallback: bool = True,
@@ -132,13 +133,8 @@ def get_active_visit() -> Optional[int]:
 
 @contextmanager
 def run_emulator(visit_id: int, **kwargs):
-    """
-    Запускает эмулятор в контексте и гарантированно останавливает в finally.
-    Пример:
-        with run_emulator(visit_id=42, bpm_csv="...", uterus_csv="..."):
-            ... # твои проверки
-    """
     pid = start_emulator(visit_id, **kwargs)
+    print(pid)
     try:
         yield pid
     finally:
