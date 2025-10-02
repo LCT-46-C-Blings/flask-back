@@ -5,6 +5,19 @@ import app.services.visits as svc_visits
 import app.services.patients as svc_patients
 
 def get_prediction(visit_id: int):
+    """
+    Returns a prediction for the given visit.
+
+    Parameters
+    ----------
+    visit_id : int
+        The ID of the visit to predict.
+
+    Returns
+    -------
+    result : str
+        The prediction result.
+    """
     uc = svc_records.list_records(visit_id=visit_id, record_type="UC")
     fhr = svc_records.list_records(visit_id=visit_id, record_type="FHR")
 

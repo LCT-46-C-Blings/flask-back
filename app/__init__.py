@@ -25,6 +25,30 @@ def enable_sqlite_fk(app):
             cur.close()
 
 def create_app(config_object=Config):
+    """
+    Create a Flask application with the given configuration object.
+
+    The application is configured with the given configuration object,
+    and the following extensions are initialized:
+
+    - SQLAlchemy with the given database URL
+    - Flask-Migrate with the given database URL
+    - Flask-SocketIO with CORS enabled
+    - Flask-CORS with CORS enabled
+
+    The following blueprints are registered:
+
+    - app.api.patients:patients_bp
+    - app.api.visits:visits_bp
+    - app.api.monitor:monitor_bp
+    - app.api.records:records_bp
+    - app.api.predictions:predictions_bp
+
+    The app.ws.records.register_records_ws function is called to register
+    the records WebSocket endpoint.
+
+    Returns: The created Flask application.
+    """
     app = Flask(__name__)
     app.config.from_object(config_object)
     app.json = UTF8JSONProvider(app)

@@ -6,34 +6,32 @@ API:
         ret: {"events": [
             {
                 "id": int,
-                "type": str,
-                "start": float,
-                "end": float,
-                "value": str
+                "type": str,         
+                "start": float,      
+                "end": float | null, 
+                "value": str | null
             }
         ]}
-
 
     /api/predictions
         / GET
         args
             visit_id: int
-        ret: {"prediction": 
+        ret: {"prediction":
             {
                 "id": int,
-                "result": str
+                "result": str          # сериализованный результат/JSON-строка
             }
         }
 
-
     /api/visits
-        / POST
+        /create POST
         args
             patient_id: int
         ret: {
             "ok": bool,
             "visit_id": int,
-            "created": bool,
+            "created": bool
         }
 
         /list GET
@@ -42,11 +40,10 @@ API:
         ret: {"visits": [
             {
                 "id": int,
-                "start_time": float,
-                "end_time": float
+                "start_time": float, 
+                "end_time": float | null
             }
         ]}
-
 
     /api/patients
         /create POST
@@ -55,16 +52,18 @@ API:
         ret: {
             "ok": bool,
             "patient_id": int,
-            "created": bool,
+            "created": bool
         }
-    
+
         /set_anamnesis POST
+        args
+            patient_id: int
         body
             anamnesis: List[str]
         ret: {
             "ok": bool,
             "patient_id": int,
-            "created": bool,
+            "updated": bool
         }
 
         /list GET
@@ -76,16 +75,16 @@ API:
                     {
                         "id": int,
                         "start_time": float,
-                        "end_time": float
+                        "end_time": float | null
                     }
                 ]
-            } 
+            }
         ]}
 
         / GET
         args
             patient_id: int
-        ret: {"patient": 
+        ret: {"patient":
             {
                 "id": int,
                 "anamnesis": List[str],
@@ -93,12 +92,11 @@ API:
                     {
                         "id": int,
                         "start_time": float,
-                        "end_time": float
+                        "end_time": float | null
                     }
                 ]
-            } 
+            }
         }
-
 
     /api/records
         /fhr GET
@@ -106,7 +104,7 @@ API:
             visit_id: int
         ret: {"items": [
             {
-                "timestamp": float,
+                "timestamp": float,    # UNIX seconds (float)
                 "value": float
             }
         ]}
@@ -116,7 +114,94 @@ API:
             visit_id: int
         ret: {"items": [
             {
-                "timestamp": float,
+                "timestamp": float,    # UNIX seconds (float)
                 "value": float
             }
         ]}
+
+    /api/monitor
+        /bpm POST
+        args
+            value: float              # точка FHR
+        ret: { "ok": bool }
+
+        /uterus POST
+        args
+            value: float              # точка UC
+        ret: { "ok": bool }
+
+WS:
+    /ws/records/fhr  (Socket.IO namespace)
+        / CONNECT
+        args
+            visit_id: int
+            loop: bool (optional)
+        emits (server -> client)
+            connected:     { ok: bool, visit_id: int, type: "FHR" }
+            fhr:snapshot:  { items: [ { timestamp: float, value: float } ] }
+            fhr:new:       { timestamp: float, value: float }
+
+    /ws/records/uc   (Socket.IO namespace)
+        / CONNECT
+        args
+            visit_id: int
+        emits (server -> client)
+            connected:     { ok: bool, visit_id: int, type: "UC" }
+            uc:snapshot:   { items: [ { timestamp: float, value: float } ] }
+            uc:new:        { timestamp: float, value: float }
+
+
+
+flask-back/
+├─ README                         # описание проекта и API
+├─ requirements.txt               # python-зависимости
+├─ .env                           # локальные переменные окружения (опц.)
+│
+├─ app/
+│  ├─ __init__.py                 # App Factory: создаёт Flask/SocketIO, регистрирует блюпринты и WS
+│  │                              # + подписка на завершение эмулятора (закрыть визит/клиентов)
+│  ├─ config.py                   # Config (FLASK_RUN_HOST/PORT, DB URI, пути эмулятора и CSV)
+│  ├─ extensions.py               # Инициализация расширений (db, migrate, др.)
+│  ├─ models.py                   # SQLAlchemy-модели:
+│  │                              #  - Patient, Visit, Record(FHR/UC), Event, Prediction, prediction_visit (M2M)
+│  │                              #  Все timestamp — UNIX seconds (float)
+│  │
+│  ├─ api/                        # REST-эндпойнты (тонкие контроллеры)
+│  │  ├─ patients.py              # /api/patients/*  (создание, список, установка анамнеза, получение)
+│  │  ├─ visits.py                # /api/visits/*    (создать визит, список визитов пациента)
+│  │  ├─ records.py               # /api/records/*   (история FHR/UC по визиту)
+│  │  ├─ monitor.py               # /api/monitor/*   (приём «живых» точек от эмулятора: bpm/uterus)
+│  │  ├─ events.py                # /api/events      (события визита) — при необходимости подключается
+│  │  └─ predictions.py           # /api/predictions (результаты) — при необходимости подключается
+│  │
+│  ├─ services/                   # Слой бизнес-логики (работа с БД, валидации, транзакции)
+│  │  ├─ patients.py              # create/get/list/set_anamnesis
+│  │  ├─ visits.py                # create/finish/list/get
+│  │  ├─ records.py               # add_record (FHR/UC), выборки по визиту/типу
+│  │  ├─ events.py                # add/list/delete событий (если используется)
+│  │  └─ predictions.py           # создание/получение предсказаний (если используется)
+│  │
+│  ├─ ws/                         # WebSocket (Socket.IO) namespaces
+│  │  └─ records_ws.py            # /ws/records/fhr и /ws/records/uc:
+│  │                              #   - FHR: старт/стоп эмулятора по connect/disconnect
+│  │                              #   - UC: «пассивный», только снапшот и «живые» точки
+│  │                              #   - хуки SQLAlchemy: after_commit → пуш новых точек fhr:new / uc:new
+│  │
+│  ├─ emulator/
+│  │  └─ semulator.py             # Менеджер 1 процесса эмулятора:
+│  │                              #   start_emulator / stop_emulator / emulator_status / get_active_visit
+│  │                              #   set_on_finished(cb) — колбэк на завершение (закрыть WS/визит)
+│  │
+│  └─ utils/                      # Утилиты (по мере надобности)
+│     ├─ time.py                  # конвертации времени (float↔datetime) и т.п.
+│     └─ csv_loader.py            # загрузка CSV в БД (опц., для отладки)
+│
+├─ motet/                         # Go-эмулятор потоковых данных
+│  ├─ main.go                     # читает CSV и POST-ит в /api/monitor/{bpm,uterus}
+│  ├─ data/
+│  │  ├─ bpm_1.csv                # демо-данные FHR
+│  │  └─ uterus_1.csv             # демо-данные UC
+│  └─ build/
+│     └─ motet                    # собранный бинарь (go build -o build/motet .)
+└─ instance/
+   └─ db.sqlite3                  # локальная БД по умолчанию (git-игнорится)
