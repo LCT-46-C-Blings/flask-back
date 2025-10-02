@@ -36,7 +36,6 @@ def start_emulator(
     project_root: Optional[str] = None,
     force_restart: bool = False,
 ) -> int:
-    """Стартует ОДИН экземпляр. Возвращает pid. Эмулятор постит в /api/monitor."""
     global _proc, _watcher, _active_visit_id
     with _lock:
         if _proc and _proc.poll() is None:
@@ -66,10 +65,9 @@ def start_emulator(
             if loop:
                 cmd.append("-loop")
         else:
-            # минимальный автопад: если бинаря нет — пробуем `go run motet/main.go`
             main_go_abs = _abspath("motet/main.go", root)
             if not Path(main_go_abs).exists():
-                raise FileNotFoundError(f"Не найден бинарь {binary_abs} и motet/main.go")
+                raise FileNotFoundError()
             cmd = ["go", "run", main_go_abs, "-bpm", bpm_csv_abs, "-uterus", uterus_csv_abs, "-url", url]
             if loop:
                 cmd.append("-loop")
