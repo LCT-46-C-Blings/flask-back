@@ -5,13 +5,14 @@ WORKDIR /app
 COPY ./app/motet /app
 RUN make build
 
-FROM python:3.11-slim
+FROM python:alpine
 
 WORKDIR /
 
 COPY . .
 COPY --from=builder /app ./app/motet
 
+RUN apk add --no-cache build-base
 RUN pip install -r requirements.txt
 
 RUN flask db init
